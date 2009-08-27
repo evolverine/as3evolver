@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()"
+	horizontalAlign="left">
+	<mx:Script>
+		<![CDATA[
+			import interfaces.ICanBeLast;
+			import mx.events.PropertyChangeEvent;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.binding.utils.BindingUtils;
+			import mx.core.IDataRenderer;
+			import mx.controls.Button;
+			import factory.FactoryOfFactories;
+			import factory.FactoryOfAnything;
+			import interfaces.IBreadcrumb;
+			import mx.controls.Label;
+			import mx.core.UIComponent;
+			import utils.ArrayUtils;
+			
+			
+			public var controller:BreadcrumbsController = new BreadcrumbsController();
+			
+			
+			private var _separatorComponentClass:Class = Label;
+			private var _separators:Array = []; //of UIComponents
+			private var _separatorFactory:FactoryOfAnything;
+			private var _separatorString:String = ' > ';
+			
+			private var _itemRenderer:Class = BreadcrumbStep;
+			private var _breadcrumbs:Array = [];
+			
+			private var _separatorClassChanged:Boolean = true;
+			private var _itemRendererChanged:Boolean = true;
+			
+			
+			private function init():void
+			{
+				this.controller.addEventListener(Event.CHANGE, this.itemsChanged);
+			}
+			
+			
+			private function get separatorFactory():FactoryOfAnything
+			{
+				if(!this._separatorFactory || (this._separatorFactory.handledClass != this._separatorComponentClass))
+					this._separatorFactory = FactoryOfFactories.getInstance().gimme(this._separatorComponentClass, false) as FactoryOfAnything;
+				
+				return this._separatorFactory;
+			}
+			
+			
+			public override function set data(value:Object):void
+			{
+				if((value is Array) && (this.data != value)) {
+					super.data = value;
+					this.controller.items = value as Array;
+				}
+			}
+			
+			
+			public function set separatorString(val:String):void
+			{
+				if(this._separatorString != val) {
+					this._separatorString = val;
+					this.separatorRenderer = Label;
+				}
+			}
+			
+			
+			public function set separatorRenderer(val:Class):void
+			{
+				if(this._separatorComponentClass != val) {
+					this._separatorComponentClass = val;
+					this._separatorClassChanged = true;
+					this.refreshCrumbs();
+				}
+			}
+			
+			
+			public function set itemRenderer(val:Class):void
+			{
+				if(this._itemRenderer != val) {
+					this._itemRenderer = val;
+					this._itemRendererChanged = true;
+					this.refreshCrumbs();
+				}
+			}
+			
+			
+			
+			private function itemsChanged(event:Event):void
+			{
+				this.refreshCrumbs();
+			}
+			
+			/**
+			 * Function tries to reuse current components as much as possible
+			 * */
+			public function refreshCrumbs():void
+			{
+				var step:IDataRenderer;
+				var stepComponent:UIComponent;
+				var stepCanBeLast:ICanBeLast;
+				var needsToExist:Boolean;
+				var existingValue:Object;
+				var deleteFrom:Number;
+				var isLast:Boolean;
+				var breadCrumbData:Array = this.controller.items;
+				var max:Number = Math.max(this._breadcrumbs.length, breadCrumbData.length);
+				var i:Number = -1;
+				while(++i < max) {
+					
+					needsToExist = breadCrumbData.length > i;
+					existingValue = breadCrumbData[i];
+					isLast = i == (breadCrumbData.length-1);
+					
+					step = this._breadcrumbs[i] as IDataRenderer;
+					if(step) {
+						stepCanBeLast = step as ICanBeLast;
+						stepComponent = step as UIComponent;
+					}
+					
+					if(needsToExist) {
+						if(step) {
+							step.data = existingValue;
+							stepCanBeLast.isLast = isLast;
+						}
+						else
+							this.addStep(existingValue, isLast);
+					}
+					else {
+						//delete from here if still exist
+						if(step) {
+							if(!(deleteFrom >= 0))
+								deleteFrom = i;
+							if(stepComponent.parent)
+								stepComponent.parent.removeChild(stepComponent);
+						}
+					}
+				}
+				
+				if(deleteFrom >= 0)
+					this._breadcrumbs.splice(deleteFrom, this._breadcrumbs.length - deleteFrom + 1);
+			}
+			
+			
+			
+			public function addStep(data:Object, isLast:Boolean = false):void
+			{
+				//create it
+				var step:IDataRenderer = new this._itemRenderer();
+				var stepComponent:UIComponent;
+				var stepCanBeLast:ICanBeLast;
+				if(step) {
+					step.data = data;
+					this._breadcrumbs.push(step);
+					stepCanBeLast = step as ICanBeLast;
+					stepCanBeLast.isLast = isLast;
+					stepComponent = step as UIComponent;
+					this.addChild(stepComponent);
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	
+	
+	
+</mx:HBox>

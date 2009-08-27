@@ -6,7 +6,7 @@ package utils
 
 	public class DeepEqualsBuilder extends EqualsBuilder
 	{
-		protected override function appendObjectProperties(a:Object, b:Object) : void
+		protected override function appendObjectProperties(a:Object, b:Object):void
 		{
 			var typeInfo:Type = Type.forInstance(a);
 			var fieldsA:Array = typeInfo.variables.concat(typeInfo.accessors);
