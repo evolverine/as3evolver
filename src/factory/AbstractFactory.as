@@ -6,7 +6,7 @@ package factory
 	{
 		public var allowDuplicates:Boolean = false;
 		protected var _class:Class;
-		protected var _items:Vector.<Object> = new Vector.<Object>();
+		protected var _items:Array = [];
 		
 		public function AbstractFactory()
 		{
@@ -45,7 +45,18 @@ package factory
 		
 		public function duplicatesExistingItem(val:Object) : Object
 		{
+			var item:Object;
+			for each(item in this._items)
+				if(item == val)
+					return item;
+			
 			return null;
+		}
+		
+		
+		public function get handledClass():Class
+		{
+			return this._class;
 		}
 	}
 }

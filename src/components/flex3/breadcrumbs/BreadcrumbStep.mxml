@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:breadcrumbs="components.flex3.breadcrumbs.*"
+	implements="interfaces.ICanBeLast">
+	
+	<mx:Script>
+		<![CDATA[
+			[Bindable]
+			private var _isLast:Boolean;
+			
+			
+			public function set isLast(val:Boolean):void
+			{
+				if(this._isLast != val)
+					this._isLast = val;
+			}
+		]]>
+	</mx:Script>
+	
+	<breadcrumbs:BreadcrumbItem data="{this.data}" id="breadcrumb" enabled="{!_isLast}"/>
+	<breadcrumbs:BreadcrumbSeparator x="{breadcrumb.width + 1}"/>
+</mx:Canvas>

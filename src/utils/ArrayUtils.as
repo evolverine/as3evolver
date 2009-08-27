@@ -25,5 +25,22 @@ package utils
 			
 			return array1;
 		}
+		
+		
+		public static function joinBy(items:Array, separator:String, propertyName:String):String
+		{
+			var joined:String = '';
+			
+			if(items && items.length && propertyName) {
+				var item:Object;
+				for each(item in items)
+					if(item && item.hasOwnProperty(propertyName) && (item[propertyName])) {
+						if(joined) joined += separator;
+						joined += item[propertyName];
+					}
+			}
+			
+			return joined;
+		}
 	}
 }

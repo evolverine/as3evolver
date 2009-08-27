@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml">
+
+	<mx:Script>
+		<![CDATA[
+			public var labelField:String = 'name';
+			
+			public override function set data(value:Object):void
+			{
+				if(super.data != value) {
+					super.data = value;
+					if(this.data.hasOwnProperty(this.labelField))
+						this.label = value[this.labelField];
+				}
+			}
+			
+			
+		]]>
+	</mx:Script>
+	
+</mx:Button>
