@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Label xmlns:mx="http://www.adobe.com/2006/mxml" text=" > ">
+<mx:Label xmlns:mx="http://www.adobe.com/2006/mxml" paddingRight="0" paddingLeft="0">
 	
 </mx:Label>
