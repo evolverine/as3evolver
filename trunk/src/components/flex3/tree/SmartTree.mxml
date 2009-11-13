@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Tree xmlns:mx="http://www.adobe.com/2006/mxml"
+	change="onSelectionChange(event)">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import flash.utils.setTimeout;
+			import mx.collections.ICollectionView;
+			import mx.events.ListEvent;
+			
+			
+			//CONFIGURATION
+			public var expandNodeOnClick : Boolean = true;
+			public var autoExpandRootNodes : Boolean = true;
+			public var autoExpandAllNodes : Boolean = false;
+			
+			
+			
+			public override function set dataProvider(value:Object):void
+			{
+				if(value != this.dataProvider) {
+					super.dataProvider = value;
+					if(this.autoExpandAllNodes)
+						setTimeout(this.expandAllNodes, 400);
+					else if(this.autoExpandRootNodes)
+						setTimeout(this.expandRootNodes, 400);
+				}
+			}
+			
+			
+			private function expandAllNodes():void
+			{
+				if(this.dataProvider)
+					for each(var item : Object in this.dataProvider)
+						if(item)
+							this.expandChildrenOf(item, true);
+			}
+			
+			
+			private function expandRootNodes():void
+			{
+				if(this.dataProvider)
+					for each(var item : Object in this.dataProvider)
+						if(item)
+							this.expandItem(item, true);
+			}
+			
+			
+			
+			
+			private function onSelectionChange(event : ListEvent) : void
+			{
+				if(this.selectedItem && this.expandNodeOnClick)
+					this.expandItem(this.selectedItem, true, true);
+			}
+		]]>
+	</mx:Script>
+</mx:Tree>
