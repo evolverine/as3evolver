@@ -1,22 +1,243 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:breadcrumbs="components.flex3.breadcrumbs.*"
-	implements="interfaces.ICanBeLast">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:breadcrumbs="com.pearson.shingo.view.components.flex3.breadcrumbs.*"
+	implements="com.pearson.shingo.view.components.flex3.breadcrumbs.ICanBeLast"
+	creationComplete="init()"
+	verticalScrollPolicy="off"
+	horizontalScrollPolicy="off"
+	horizontalGap="0"
+	paddingLeft="0"
+	paddingRight="0"
+	horizontalAlign="left"
+	verticalAlign="middle">
+	
+	
+	<mx:Metadata>
+		[Event(name="select", type="flash.events.Event")]
+	</mx:Metadata>
 	
 	<mx:Script>
 		<![CDATA[
+			
+			/**
+			 * <p>
+			 * The <code>BreadcrumbStep</code> component is the visual representation of a 'breadcrumb step', which is
+			 * a breadcrumb item and the separator which follows it.
+			 * </p>
+			 * 
+			 * <p>
+			 * The <code>BreadcrumbStep</code> component is built so that the parent <code>Breadcrumbs</code> component
+			 * can alter the appearance of breadcrumbs and of separators as easily as possible. The
+			 * <code>breadcrumbRenderer</code> static property acts similarly to a List's itemRenderer property. This
+			 * property is ideally only acted upon by the <code>Breadcrumbs</code> component. See
+			 * com.pearson.shingo.view.components.flex3.breadcrumbs.Breadcrumbs for details.
+			 * </p>
+			 * 
+			 * <p>
+			 * <b>TODO:</b><br/>
+			 * - Make so that the breadcrumb separator is hadled via AS rather than being directly implemented in
+			 * mxml. This way the developer will be able to choose not to display any separator at all.
+			 * </p> 
+			 * 
+			 * <p>
+			 * You should not attempt to implement this class in your project. Changing the breadcrumb renderer, as well as the
+			 * breadcrumb separator, should be done via the <code>Breadcrumbs</code> class or any of its subclasses. 
+			 * </p>
+			 * 
+			 * @see com.pearson.shingo.view.components.flex3.breadcrumbs.Breadcrumbs
+			 * 
+			 * @author Mihai Chira
+			 * */
+			 public function readClassDescription() : void
+			 {
+			 	/**
+			 	 * this function doesn't do anything other than allow the description of the class (above)
+			 	 * to be included in the asdoc output. Without a function or variable, mxml comments do not get
+			 	 * included in the documentation.
+			 	 * */
+			 }
+			
+			
+			
+			import com.as3evolver.factory.PoolOfPools;
+			import com.as3evolver.factory.GenericObjectPool;
+			import mx.core.IDataRenderer;
+			import mx.binding.utils.BindingUtils;
+			import mx.core.UIComponent;
+			import flash.events.Event;
+			
+			//private static var _itemFactory:GenericObjectPool;
+			private static var _breadcrumbRenderer:Class = BreadcrumbItem;
+			private static var _selectEvent:Event = new Event(Event.SELECT);
+			
 			[Bindable]
-			private var _isLast:Boolean;
+			protected static var _separatorString:String;
+			
+			[Bindable]
+			protected var _breadcrumb:UIComponent;
 			
 			
+			private function init():void
+			{
+				this.addBreadcrumb();
+			} 
+			
+			
+			public static function set breadcrumbRenderer(val:Class):void
+			{
+				if(_breadcrumbRenderer != val)
+					_breadcrumbRenderer = val;
+			}
+			
+			public static function get breadcrumbRenderer():Class
+			{
+				return _breadcrumbRenderer;
+			}
+			
+			
+			
+			/**
+			 * <p>
+			 * Called when the renderer is changed. Removes the current components and adds
+			 * the new ones.
+			 * </p>
+			 * 
+			 * <p>
+			 * <b>TODO:</b> remove and add the separator as well, not just the breadcrumb item.
+			 * </p>
+			 * 
+			 * */
+			public function updateRenderer():void
+			{
+				this.removeBreadcrumb();
+				this.addBreadcrumb();
+			}
+			
+			
+			/**
+			 * Adds a fresh instance of a breadcrumb item. Called when the component has initialized
+			 * and when the breadcrumb renderer has changed.
+			 * 
+			 * */
+			protected function addBreadcrumb():void
+			{
+				if(_breadcrumbRenderer) {
+					this._breadcrumb = new _breadcrumbRenderer() as UIComponent;
+					
+					if(this._breadcrumb) {
+						BindingUtils.bindProperty(this._breadcrumb, 'enabled', this, 'isNotLast');
+						this._breadcrumb.enabled = this.isNotLast;
+						this._breadcrumb.addEventListener(MouseEvent.CLICK, this.select);
+						
+						if(this._breadcrumb is IDataRenderer) {
+							BindingUtils.bindProperty(this._breadcrumb, 'data', this, 'data');
+						}
+						else
+							throw(new Error('The item renderer for the breadcrumb item must be a class implementing IDataRenderer'));
+						
+						
+						this.addChildAt(this._breadcrumb, this.numChildren - 1);
+					}
+					else
+						throw(new Error('The item renderer for the breadcrumb item must be a class extending UIComponent'));
+				}
+			}
+			
+			/**
+			 * Removes the current breadcrumb from the display list. Called when the
+			 * breadcrumb renderer changes.
+			 * */
+			protected function removeBreadcrumb():void
+			{
+				if(this._breadcrumb) {
+					this.removeChild(this._breadcrumb);
+					if(this._breadcrumb.hasEventListener(MouseEvent.CLICK))
+						this._breadcrumb.removeEventListener(MouseEvent.CLICK, this.select);
+					
+					this._breadcrumb = null;
+				}
+			}
+			
+			
+			private var _isNotLast:Boolean = false;
+			
+			/**
+			 * True if this is NOT the last inserted (and displayed) breadcrumb. This is the negation
+			 * of <code>isLast</code>. Used for data binding inside <code>addBreadcrumb()</code>
+			 * 
+			 * @see #addBreadcrumb()
+			 * */
+			[Bindable]
+			public function get isNotLast():Boolean
+			{
+				return this._isNotLast;
+			}
+			
+			public function set isNotLast(val:Boolean):void
+			{
+				if(this._isNotLast != val)
+					this._isNotLast = val;
+			}
+			
+			
+			
+			/**
+			 * True if the current breadcrumb step is the last inserted (and displayed) breadcrumb step.
+			 * If true, the last breadcrumb item will be disabled ( <code>.enabled = false;</code>) and
+			 * the separator will not be shown. This property is managed by the <code>Breadcrumbs</code>
+			 * component. 
+			 * */
 			public function set isLast(val:Boolean):void
 			{
-				if(this._isLast != val)
-					this._isLast = val;
+				if(this.isNotLast == val)
+					this.isNotLast = !val;
 			}
+			
+			/**
+			 * <p>
+			 * THIS IS NOT CURRENTLY WORKING. TO BE FINALIZED.
+			 * </p>
+			 * 
+			 * <p>
+			 * The objective is that changing the separatorString property via the
+			 * <code>Breadcrumbs</code> component will change all the separator labels
+			 * via this property.
+			 * </p>
+			 * */
+			public static function set separatorString(val:String):void
+			{
+				if(_separatorString != val)
+					_separatorString = val;
+			}
+			
+			
+			
+			/**
+			 * Listens to CLICK events on the breadcrumb item and dispatches an
+			 * event by the type of <code>Event.SELECT</code>, which is picked
+			 * up by the <code>Breadcrumbs</code> component or one of its subclasses.
+			 * */
+			protected function select(event:Event = null):void
+			{
+				this.dispatchEvent(_selectEvent);
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			/* private static function get itemFactory():GenericObjectPool
+			{
+				if(!_itemFactory || (_itemFactory.handledClass != _breadcrumbRenderer))
+					_itemFactory = PoolOfPools.getInstance().gimme(_breadcrumbRenderer, false) as GenericObjectPool;
+				
+				return _itemFactory;
+			} */
 		]]>
 	</mx:Script>
 	
-	<breadcrumbs:BreadcrumbItem data="{this.data}" id="breadcrumb" enabled="{!_isLast}"/>
-	<breadcrumbs:BreadcrumbSeparator x="{breadcrumb.width + 1}"/>
-</mx:Canvas>
+	<breadcrumbs:BreadcrumbSeparator id="separator" visible="{this.isNotLast}" text="{_separatorString}" paddingRight="0" paddingLeft="0"/>
+</mx:HBox>
