@@ -1,6 +1,6 @@
-package components.as3.folderBrowsing.drilldown
+package com.pearson.shingo.view.components.as3.folderBrowsing.drilldown
 {
-	import interfaces.IName;
+	import com.pearson.shingo.interfaces.IName;
 	
 	[RemoteClass(alias="FolderVO")]
 	public class FolderVO implements IName
@@ -15,5 +15,11 @@ package components.as3.folderBrowsing.drilldown
 		{
 			return this.title;
 		}
+		
+		public function set name( inName : String ) : void
+		{
+			this.title = inName;
+		}
+		
 	}
 }

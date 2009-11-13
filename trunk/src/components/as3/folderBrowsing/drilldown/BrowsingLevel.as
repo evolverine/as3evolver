@@ -1,8 +1,6 @@
-package components.as3.folderBrowsing.drilldown
+package com.pearson.shingo.view.components.as3.folderBrowsing.drilldown
 {
-	import interfaces.IBrowsingItem;
-	import interfaces.IBrowsingLevel;
-	import interfaces.IName;
+	import com.pearson.shingo.interfaces.IName;
 	
 	public class BrowsingLevel implements IBrowsingLevel
 	{
@@ -65,6 +63,11 @@ package components.as3.folderBrowsing.drilldown
 		public function get name():String
 		{
 			return this._name;
+		}
+		
+		public function set name( inName : String ) : void
+		{
+			//TODO: Review: do we need to set name?
 		}
 		
 		
