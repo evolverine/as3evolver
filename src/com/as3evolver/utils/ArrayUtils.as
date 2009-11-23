@@ -3,6 +3,25 @@ package com.as3evolver.utils
 
 	public class ArrayUtils
 	{
+		public static function cloneArray( val : Array ) : Array
+		{
+			if( !val )
+				return null;
+
+			if( !val.length )
+				return[];
+
+			var clonedArray : Array = [];
+			var arrayIndex : String;
+
+			for( arrayIndex in val )
+				clonedArray[ arrayIndex ] = val[ arrayIndex ];
+
+
+			return clonedArray;
+		}
+
+
 		public static function safeConcat( array1 : Array, ... otherArrays ) : Array
 		{
 			if( array1 && otherArrays )
