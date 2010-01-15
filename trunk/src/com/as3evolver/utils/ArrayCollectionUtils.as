@@ -18,5 +18,31 @@ package com.as3evolver.utils
 			return destination;
 		}
 
+
+		public static function getItemIndexByProperty( list : ArrayCollection, property : String, value : Object ) : Number
+		{
+			if( !list )
+				return-1;
+
+			if( !list.length )
+				return-1;
+
+			if( !property )
+				return-1;
+
+			var item : Object;
+
+			for( var ctr : Number = 0; ctr < list.length; ctr++ )
+			{
+				item = list.getItemAt( ctr );
+
+				if( item && item.hasOwnProperty( property ))
+					if( item[ property ] == value )
+						return ctr;
+			}
+
+			return( -1 );
+		}
+
 	}
 }
