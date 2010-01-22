@@ -1,4 +1,4 @@
-package it.aekidna.cleverplatypus.utils
+package com.as3evolver.utils
 {
 	import mx.utils.StringUtil;
 	import mx.validators.StringValidator;
