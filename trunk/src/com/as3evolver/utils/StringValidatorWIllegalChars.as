@@ -3,7 +3,7 @@ package com.as3evolver.utils
 	import mx.utils.StringUtil;
 	import mx.validators.StringValidator;
 	import mx.validators.ValidationResult;
-	import it.aekidna.cleverplatypus.utils.StringUtils;
+
 
 	public class StringValidatorWIllegalChars extends StringValidator
 	{
